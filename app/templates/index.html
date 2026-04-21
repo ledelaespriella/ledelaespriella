@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block body_class %}public-page{% endblock %}
+
+{% block nav %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#hero">LEDJ</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Alternar navegación">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#sobre-mi">Sobre mí</a></li>
+        <li class="nav-item"><a class="nav-link" href="#experiencia">Experiencia</a></li>
+        <li class="nav-item"><a class="nav-link" href="#habilidades">Habilidades</a></li>
+        <li class="nav-item"><a class="nav-link" href="#portafolio">Portafolio</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="hero" class="section section-hero d-flex align-items-center">
+  <div class="container text-center reveal">
+    <p class="text-accent text-uppercase fw-semibold mb-2">{{ cv.profile.location }}</p>
+    <h1 class="display-4 fw-bold mb-3">{{ cv.profile.name }}</h1>
+    <p class="lead mb-4">{{ cv.profile.role }}</p>
+    <p class="mx-auto" style="max-width: 720px;">{{ cv.profile.summary }}</p>
+    <a href="#portafolio" class="btn btn-primary btn-lg mt-4">Ver portafolio</a>
+  </div>
+</section>
+
+<section id="sobre-mi" class="section">
+  <div class="container reveal">
+    <h2 class="section-title">Sobre mí</h2>
+    <div class="row g-4">
+      {% for item in cv.about %}
+      <div class="col-md-4">
+        <div class="card card-accent h-100 p-4">
+          <p class="mb-0">{{ item }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="experiencia" class="section section-alt">
+  <div class="container reveal">
+    <h2 class="section-title">Experiencia</h2>
+    <div class="timeline">
+      {% for exp in cv.experience %}
+      <article class="timeline-item">
+        <h3 class="h5 mb-1">{{ exp.role }}</h3>
+        <p class="text-accent mb-1">{{ exp.company }} · {{ exp.period }}</p>
+        <ul class="mb-0">
+          {% for h in exp.highlights %}
+          <li>{{ h }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="habilidades" class="section">
+  <div class="container reveal">
+    <h2 class="section-title">Habilidades</h2>
+    <div class="row g-4">
+      {% for group in cv.skills %}
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-accent h-100 p-4">
+          <h3 class="h6 text-accent text-uppercase">{{ group.group }}</h3>
+          <ul class="list-unstyled mb-0">
+            {% for item in group['items'] %}
+            <li class="mb-1">&bull; {{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="portafolio" class="section section-alt">
+  <div class="container reveal">
+    <h2 class="section-title">Portafolio</h2>
+
+    {# Los botones de filtro se reconstruyen dinámicamente en main.js a partir
+       de las categorías recibidas de /api/projects. Ponemos un placeholder
+       "Todos" que permanece siempre. #}
+    <div id="project-filters" class="mb-4 d-flex flex-wrap gap-2" role="tablist" aria-label="Filtros por categoría">
+      <button type="button" class="btn btn-outline-primary active" data-category="">Todos</button>
+    </div>
+
+    {# Contenedor que el JS popula. NUNCA renderizamos proyectos hardcodeados. #}
+    <div id="projects-grid" class="row g-4" aria-live="polite"></div>
+
+    {# Fallback: si el JS está deshabilitado, mostramos al menos los destacados
+       preservados por el servidor (SSR). #}
+    <noscript>
+      <div class="row g-4 mt-3">
+        {% for p in featured_projects %}
+        <div class="col-md-6 col-lg-4">
+          <article class="card card-project h-100">
+            {% if p.image_filename %}
+            <img src="{{ url_for('public.serve_upload', filename=p.image_filename) }}" alt="{{ p.title }}" class="card-img-top">
+            {% endif %}
+            <div class="card-body">
+              <h3 class="h5">{{ p.title }}</h3>
+              {% if p.category %}<span class="badge bg-primary">{{ p.category }}</span>{% endif %}
+              <p class="mt-2">{{ p.description }}</p>
+            </div>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+    </noscript>
+  </div>
+</section>
+
+<section id="contacto" class="section">
+  <div class="container reveal text-center">
+    <h2 class="section-title">Contacto</h2>
+    <p>{{ cv.contact.note }}</p>
+    <p>
+      <a class="btn btn-primary me-2" href="mailto:{{ cv.contact.email }}">{{ cv.contact.email }}</a>
+      <a class="btn btn-outline-primary" href="{{ cv.contact.instagram_url }}" rel="noopener noreferrer" target="_blank">Instagram</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

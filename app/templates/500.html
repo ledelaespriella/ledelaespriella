@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Error del servidor{% endblock %}
+{% block content %}
+<section class="section section-hero d-flex align-items-center text-center">
+  <div class="container">
+    <h1 class="display-1 fw-bold text-accent">500</h1>
+    {# Mensaje genérico: NUNCA exponemos stack trace ni detalles internos al usuario. #}
+    <p class="lead">{{ message if message else "Ocurrió un problema procesando tu solicitud." }}</p>
+    <p>Si persiste, intenta de nuevo en unos minutos.</p>
+    <a href="{{ url_for('public.index') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,54 @@
+# ================================================================
+# Fragmento nginx.conf para desplegar el portafolio en un VPS.
+# Copiar dentro de /etc/nginx/sites-available/portafolio.conf,
+# enlazar con ln -s a /etc/nginx/sites-enabled/, y reload con:
+#     sudo nginx -t && sudo systemctl reload nginx
+#
+# Asume Gunicorn corriendo en 127.0.0.1:8000 (systemd unit incluida).
+# Asume Certbot configurando HTTPS automáticamente.
+# ================================================================
+
+server {
+    listen 80;
+    server_name tu-dominio.com www.tu-dominio.com;
+
+    # Redirige todo HTTP → HTTPS (Certbot suele generar esto solo).
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name tu-dominio.com www.tu-dominio.com;
+
+    # Gestionados por Certbot; no editar a mano.
+    ssl_certificate     /etc/letsencrypt/live/tu-dominio.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tu-dominio.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    # Límite de tamaño de request — debe coincidir con MAX_CONTENT_LENGTH de Flask.
+    client_max_body_size 2M;
+
+    # Cabeceras de seguridad (refuerzan las que setea Flask/Talisman).
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Static directamente desde disco (bypass a Gunicorn) para menor latencia.
+    location /static/ {
+        alias /srv/portafolio/app/static/;
+        access_log off;
+        expires 7d;
+    }
+
+    # Proxy al WSGI.
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        proxy_read_timeout 60s;
+    }
+}

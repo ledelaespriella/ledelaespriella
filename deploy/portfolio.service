@@ -1,0 +1,39 @@
+# systemd unit para Gunicorn en VPS.
+# Copiar a /etc/systemd/system/portfolio.service y activar con:
+#     sudo systemctl daemon-reload
+#     sudo systemctl enable --now portfolio
+#     sudo systemctl status portfolio
+
+[Unit]
+Description=Portafolio Flask (Gunicorn)
+After=network.target
+
+[Service]
+# Usuario sin privilegios — NO ejecutar como root.
+User=portfolio
+Group=portfolio
+
+WorkingDirectory=/srv/portafolio
+
+# Variables de entorno: usar un archivo protegido (chmod 600, owner portfolio).
+EnvironmentFile=/etc/portfolio.env
+
+ExecStart=/srv/portafolio/.venv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    --access-logfile - \
+    --error-logfile - \
+    run:app
+
+Restart=always
+RestartSec=3
+
+# Hardening del servicio (systemd-analyze security portfolio para verificar).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/portafolio/instance
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,47 @@
+# Secrets y configuración local
+.env
+.env.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+
+# Bases de datos locales (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Empaquetado / build
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDEs / editores
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Uploads subidos por el admin (se crean en runtime, no se versionan)
+instance/uploads/

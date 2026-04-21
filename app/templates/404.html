@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}404 — Página no encontrada{% endblock %}
+{% block content %}
+<section class="section section-hero d-flex align-items-center text-center">
+  <div class="container">
+    <h1 class="display-1 fw-bold text-accent">404</h1>
+    <p class="lead">La página que buscas no existe o fue movida.</p>
+    <a href="{{ url_for('public.index') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+  </div>
+</section>
+{% endblock %}
