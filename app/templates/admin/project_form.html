@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Admin · {{ "Editar" if project else "Nuevo" }} proyecto{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+
+{% block nav %}
+<nav class="navbar navbar-dark bg-black">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{{ url_for('admin.dashboard') }}">&larr; Dashboard</a>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width: 720px;">
+    <h1 class="section-title">{{ "Editar" if project else "Nuevo" }} proyecto</h1>
+
+    <form method="post" enctype="multipart/form-data" class="card card-accent p-4" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control", required=True) }}
+        {% for err in form.title.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.category.label(class="form-label") }}
+        {{ form.category(class="form-control") }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control", rows="5") }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.project_url.label(class="form-label") }}
+        {{ form.project_url(class="form-control", type="url") }}
+        {% for err in form.project_url.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.tags.label(class="form-label") }}
+        {{ form.tags(class="form-control", placeholder="excel, auditoría, ia") }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.image.label(class="form-label") }}
+        {{ form.image(class="form-control", accept="image/png,image/jpeg,image/webp") }}
+        {% for err in form.image.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+        {% if project and project.image_filename %}
+          <div class="mt-2">
+            <p class="small mb-1">Imagen actual:</p>
+            <img src="{{ url_for('public.serve_upload', filename=project.image_filename) }}" alt="Imagen actual" style="max-height: 160px; border-radius: .5rem;">
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="row g-3">
+        <div class="col-sm-4 form-check ms-2">
+          {{ form.is_featured(class="form-check-input") }}
+          {{ form.is_featured.label(class="form-check-label") }}
+        </div>
+        <div class="col-sm-4 form-check">
+          {{ form.is_published(class="form-check-input") }}
+          {{ form.is_published.label(class="form-check-label") }}
+        </div>
+        <div class="col-sm-4">
+          {{ form.sort_order.label(class="form-label") }}
+          {{ form.sort_order(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
